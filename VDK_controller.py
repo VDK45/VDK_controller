@@ -6,6 +6,7 @@ import socket
 import pyperclip
 
 
+
 try:
     file = open('ip_server.txt', 'r')
     line = file.readline()
@@ -13,7 +14,7 @@ try:
     ip = line
     print(f'Connecting to: {ip}')
 except FileNotFoundError:
-    ip = 'vdk45.ddns.net'
+    ip = 'vdk45.ddns.net'   # Менять
 
 
 def client_send(mes):
@@ -187,20 +188,28 @@ def joystick():
         button_s = pygame.Rect(150, 250, 100, 100)
         button_a = pygame.Rect(50, 150, 100, 100)
         button_d = pygame.Rect(250, 150, 100, 100)
-        button_space = pygame.Rect(450, 250, 200, 100)
+        button_b = pygame.Rect(450, 120, 100, 100)
+        button_p = pygame.Rect(350, 280, 80, 50)
+        button_space = pygame.Rect(490, 250, 200, 100)
 
         if button_w.collidepoint((mx, my)):
             if click:
-                print('w')
+                print('Button W')
         if button_s.collidepoint((mx, my)):
             if click:
-                print('s')
+                print('Button S')
         if button_a.collidepoint((mx, my)):
             if click:
-                print('a')
+                print('Button A')
         if button_d.collidepoint((mx, my)):
             if click:
-                print('d')
+                print('Button D')
+        if button_b.collidepoint((mx, my)):
+            if click:
+                print('Button B')
+        if button_p.collidepoint((mx, my)):
+            if click:
+                print('Pause')
         if button_space.collidepoint((mx, my)):
             if click:
                 print('Space')
@@ -208,7 +217,10 @@ def joystick():
         pygame.draw.rect(win, blue, button_s)
         pygame.draw.rect(win, blue, button_a)
         pygame.draw.rect(win, blue, button_d)
+        pygame.draw.rect(win, blue, button_p)
         pygame.draw.rect(win, blue, button_space)
+        pygame.draw.rect(win, gray, button_b)
+        pygame.draw.circle(win, blue, (500, 170), 50)
         click = False
         keys_pres = pygame.key.get_pressed()
         for even in pygame.event.get():
@@ -230,11 +242,37 @@ def joystick():
                 elif even.key == pygame.K_w:
                     client_send('!up')
                     print('w')
+                elif even.key == pygame.K_b:
+                    client_send('!shoot')
+                    print('B')
+                elif even.key == pygame.K_p:
+                    client_send('!pause')
+                    print('Pause')
                 elif even.key == pygame.K_SPACE:
                     client_send('!jump')
                     print('space')
+
+            # Key up
+            if even.type == pygame.KEYUP:
+                if even.key == pygame.K_a:
+                    client_send('#left')
+                elif even.key == pygame.K_d:
+                    client_send('#right')
+                elif even.key == pygame.K_s:
+                    client_send('#down')
+                elif even.key == pygame.K_w:
+                    client_send('#up')
+                elif even.key == pygame.K_b:
+                    client_send('#shoot')
+                elif even.key == pygame.K_p:
+                    client_send('#pause')
+                elif even.key == pygame.K_SPACE:
+                    client_send('#jump')
+
             if keys_pres[pygame.K_ESCAPE]:
                 main_menu()
+
+            # Mouse controls
             if even.type == pygame.MOUSEBUTTONDOWN:
                 if button_w.collidepoint(even.pos):
                     if even.button == 1:
@@ -252,16 +290,60 @@ def joystick():
                     if even.button == 1:
                         click = True
                         client_send('!right')
+                if button_b.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = True
+                        client_send('!shoot')
+                if button_p.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = True
+                        client_send('!pause')
                 if button_space.collidepoint(even.pos):
                     if even.button == 1:
                         click = True
                         client_send('!jump')
 
-        draw_text('w', font_menu, (255, 255, 255), win, 185, 85)
-        draw_text('s', font_menu, (255, 255, 255), win, 185, 285)
-        draw_text('a', font_menu, (255, 255, 255), win, 85, 185)
-        draw_text('d', font_menu, (255, 255, 255), win, 285, 185)
-        draw_text('Space', font_menu, (255, 255, 255), win, 500, 285)
+            if even.type == pygame.MOUSEBUTTONUP:
+                if button_w.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#up')
+                if button_s.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#down')
+                if button_a.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#left')
+                if button_d.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#right')
+                if button_b.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#shoot')
+                if button_p.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#pause')
+                if button_space.collidepoint(even.pos):
+                    if even.button == 1:
+                        click = False
+                        client_send('#jump')
+
+            if even.type == pygame.MOUSEBUTTONUP:
+                click = False
+                client_send('')
+
+        draw_text('w', font_menu, white, win, 185, 85)
+        draw_text('s', font_menu, white, win, 185, 285)
+        draw_text('a', font_menu, white, win, 85, 185)
+        draw_text('d', font_menu, white, win, 285, 185)
+        draw_text('Space', font_menu, white, win, 540, 285)
+        draw_text('B', font_menu, white, win, 490, 160)
+        draw_text('P', font_menu, white, win, 380, 290)
         pygame.display.update()
         clock.tick(FPS)
 
@@ -335,10 +417,10 @@ def main_menu():
         draw_text('', font_menu, (255, 255, 255), win, 80, 315)
         draw_text('Support me', smallfon, (255, 255, 255), win, 65, 508)
         draw_text('Download vdk controller', smallfon, (255, 255, 255), win, 63, 569)
-        draw_text('version v.1.0', smallfon, (255, 255, 255), win, 500, 850)
+        draw_text('version v.1.0.1', smallfon, (255, 255, 255), win, 500, 850)
         pygame.display.update()
         clock.tick(FPS)
 
 
-test()
+# test()
 joystick()
